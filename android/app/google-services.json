@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "833575095982",
+    "project_id": "acmeapp-4f42f",
+    "storage_bucket": "acmeapp-4f42f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:833575095982:android:80e7e326cf880c5b53e73f",
+        "android_client_info": {
+          "package_name": "com.example.acme_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "833575095982-hhp248f39i570bsrffq1mk3o9plk0377.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1Hf-qjMi1GRCn5rvyVyNvqgmxOvg_NxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "833575095982-hhp248f39i570bsrffq1mk3o9plk0377.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
