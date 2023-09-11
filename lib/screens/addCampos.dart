@@ -1,8 +1,11 @@
 import 'package:acme_app/models/campo_model.dart';
-import 'package:acme_app/models/encuesta_model.dart';
+import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:firebase_database/firebase_database.dart';
 // import 'package:firebase_realtime_database_crud_tutorial/models/encuesta_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+final format = DateFormat("dd/MM/yyyy");
 
 class CamposPage extends StatefulWidget {
   final String codigo;
@@ -16,13 +19,13 @@ class _CamposPageState extends State<CamposPage> {
   final String codigo;
   DatabaseReference dbRef = FirebaseDatabase.instance.ref();
 
-  int idCampo = 0;
+  int idCampo = 1;
   final TextEditingController _nombreCampoController = TextEditingController();
   final TextEditingController _tituloCampoController = TextEditingController();
-  String tipoCampo = '';
-  String checkedRequerido = 'false';
+  String tipoCampo = 'text';
+  String checkedRequerido = 'true';
 
-  List<Campo> encuestaList = [];
+  List<Campo> campoList = [];
 
   bool updateCampo = false;
   _CamposPageState(this.codigo);
@@ -38,13 +41,19 @@ class _CamposPageState extends State<CamposPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Agregar campos"),
-      ),
+          title: const Text("Agregar campos"),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },
+          )),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            for (int i = 0; i < encuestaList.length; i++)
-              campoWidget(encuestaList[i])
+            for (int i = 0; i < campoList.length; i++)
+              if (campoList[i].campoData!.codigo! == codigo) campoWidget(campoList[i])
           ],
         ),
       ),
@@ -72,10 +81,10 @@ class _CamposPageState extends State<CamposPage> {
                 children: [
                   TextField(
                       controller: _tituloCampoController,
-                      decoration: const InputDecoration(helperText: "Título")),
+                      decoration: const InputDecoration(labelText: "Título")),
                   TextField(
                     controller: _nombreCampoController,
-                    decoration: const InputDecoration(helperText: "Nombre"),
+                    decoration: const InputDecoration(labelText: "Nombre"),
                   ),
                   Row(
                     children: [
@@ -99,7 +108,7 @@ class _CamposPageState extends State<CamposPage> {
                   ),
                   Row(
                     children: [
-                      Expanded(flex: 3, child: const Text('Tipo de campox.')),
+                      Expanded(flex: 3, child: const Text('Tipo de campo.')),
                       Expanded(
                           flex: 1,
                           child: DropdownButtonFormField(
@@ -137,10 +146,10 @@ class _CamposPageState extends State<CamposPage> {
                               .child(key!)
                               .update(data)
                               .then((value) {
-                            int index = encuestaList
+                            int index = campoList
                                 .indexWhere((element) => element.key == key);
-                            encuestaList.removeAt(index);
-                            encuestaList.insert(
+                            campoList.removeAt(index);
+                            campoList.insert(
                                 index,
                                 Campo(
                                     key: key,
@@ -168,12 +177,13 @@ class _CamposPageState extends State<CamposPage> {
     dbRef.child("Campos").onChildAdded.listen((data) {
       CampoData encuestaData = CampoData.fromJson(data.snapshot.value as Map);
       Campo encuesta = Campo(key: data.snapshot.key, campoData: encuestaData);
-      encuestaList.add(encuesta);
+      campoList.add(encuesta);
       setState(() {});
     });
   }
 
   Widget campoWidget(Campo campo) {
+      idCampo= campo.campoData!.idCampo! + 1;
     return Row(
       children: [
         Expanded(
@@ -195,41 +205,59 @@ class _CamposPageState extends State<CamposPage> {
                         validator: (value) {
                           if (campo.campoData!.requerido == 'true' &&
                               value!.isEmpty) {
-                            return '${campo.campoData!.titulo!} faltante';
+                            return "Campo obligatorio";
                           } else {
                             return null;
                           }
                         },
-                      ) : Text('Fecha')
-                    // : Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       Text(
-                    //         "Fecha: ",
-                    //         style: TextStyle(
-                    //           color: Colors.black45,
-                    //         ),
-                    //       ),
-                    //       TextFormField(
-                    //         style: const TextStyle(fontSize: 18),
-                    //         enableInteractiveSelection: false,
-                    //         textAlign: TextAlign.center,
-                    //         // ignore: prefer_const_constructors
-                    //         decoration: InputDecoration(
-                    //             hintText: 'Fecha',
-                    //             label: const Center(
-                    //                 child: Text("Fecha",
-                    //                     style: TextStyle(fontSize: 18))),
-                    //             disabledBorder: InputBorder.none),
-                    //         onTap: () {
-                    //           FocusScope.of(context)
-                    //               .requestFocus(new FocusNode());
-                    //           _selectDate(context);
-                    //         },
-                    //       )
-                    //     ],
-                    //   )
-                      )),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            campo.campoData!.titulo!,
+                            style: TextStyle(
+                              color: Colors.black45,
+                            ),
+                          ),
+                          DateTimeField(
+                            format: format,
+                            // controller: fechaCtrl,
+                            onShowPicker: (context, currentValue) {
+                              return showDatePicker(
+                                  context: context,
+                                  firstDate: DateTime(1995),
+                                  initialDate: currentValue ?? DateTime.now(),
+                                  lastDate: DateTime(
+                                      2100)); /*.then((value){
+                 FechaVisita= value.toString();
+                    });*/
+                            },
+                            onSaved: (value) {
+                              if (value != null) {
+                                String dia = value.day.toString();
+                                String mes = value.month.toString();
+
+                                if (dia.length == 1) {
+                                  dia = "0" + value.day.toString();
+                                }
+                                if (mes.length == 1) {
+                                  mes = "0" + value.month.toString();
+                                }
+                                //  this.FechaVisita = value.year.toString() + "-" + mes  + "-" + dia;
+                              }
+                            },
+                            validator: (value) {
+                              if (campo.campoData!.requerido == 'true' &&
+                                  value == null) {
+                                return "Campo obligatorio";
+                              } else {
+                                return null;
+                              }
+                            },
+                          )
+                        ],
+                      ))),
         Expanded(
             flex: 1,
             child: Column(
@@ -241,7 +269,7 @@ class _CamposPageState extends State<CamposPage> {
                   onPressed: () {
                     idCampo = campo.campoData!.idCampo!;
                     _nombreCampoController.text = campo.campoData!.nombre!;
-                    _tituloCampoController.text = campo.campoData!.codigo!;
+                    _tituloCampoController.text = campo.campoData!.titulo!;
                     checkedRequerido = campo.campoData!.requerido!;
                     tipoCampo = campo.campoData!.tipo!;
 
@@ -260,9 +288,9 @@ class _CamposPageState extends State<CamposPage> {
                         .child(campo.key!)
                         .remove()
                         .then((value) {
-                      int index = encuestaList
+                      int index = campoList
                           .indexWhere((element) => element.key == campo.key!);
-                      encuestaList.removeAt(index);
+                      campoList.removeAt(index);
                       setState(() {});
                     });
                   },
@@ -319,16 +347,4 @@ List<DropdownMenuItem<String>> listDdmRequerido() {
   ));
 
   return lWidgets;
-}
-
-_selectDate(BuildContext context) async {
-  DateTime? picked = await showDatePicker(
-    context: context,
-    initialDate: new DateTime.now(),
-    firstDate: new DateTime(1800),
-    lastDate: new DateTime.now(),
-    locale: Locale('es', 'ES'),
-  );
-
-  if (picked != null) {}
 }

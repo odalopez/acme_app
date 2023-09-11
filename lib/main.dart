@@ -1,6 +1,9 @@
 import 'package:acme_app/screens/LoginPage.dart';
 import 'package:acme_app/screens/addCampos.dart';
 import 'package:acme_app/screens/encuesta.dart';
+import 'package:acme_app/screens/llenaEncuesta.dart';
+import 'package:acme_app/screens/registro.dart';
+import 'package:acme_app/screens/resultado.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -25,10 +28,16 @@ class MyApp extends StatelessWidget {
           switch (settings.name) {
             case "/":
               return const LoginPage();
+            case "registro":
+              return const Registro();
             case "encuesta":
-              return const EncuestaPage();
+              return const EncuestaPage(usuario: '',);
             case "campos":
               return  CamposPage(codigo: '',);
+            case "llenaEncuesta":
+              return  LlenaEncuesta(codigo: '',);
+             case "resultados":
+              return  VerResultados(codigo: '', nombre: '',);
             default:
               return const LoginPage();
             // case "/home":

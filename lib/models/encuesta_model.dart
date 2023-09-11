@@ -9,6 +9,7 @@ class EncuestaData{
   String? nombre;
   String? codigo;
   String? descripcion;
+  String? usuario;
 
   EncuestaData({this.nombre,this.codigo,this.descripcion});
 
@@ -16,5 +17,6 @@ class EncuestaData{
     nombre = json["nombre"];
     codigo = json["codigo"];
     descripcion = json["descripcion"];
+    usuario = json["usuario"];
   }
 }
